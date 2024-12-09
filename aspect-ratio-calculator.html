@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Калькулятор соотношения сторон, как правильно рассчитать размер картинки | WTOOLS</title>
+<link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/wtoolkits.min.css" rel="stylesheet">
+</head>
+<body class="nav-md">
+<div class="container body">
+<div class="main_container">
+<div class="right_col" role="main">
+<div class="site-contact">
+<div class="row">
+<h1>Калькулятор соотношения сторон</h1>
+<div class="col-md-9 col-sm-9 col-xs-12">
+<div class="x_panel">
+<div class="x_content" id="inputPanel">
+<p>Нижеприведенный, простой инструмент поможет вам быстро и легко высчитать нужную пропорцию изображения или видео. Вам нужно будет ввести ширину и высоту исходного изображения, а ниже ввести либо ширину, либо высоту конечного изображения. И скрипт высчитает второе значение.</p>
+<div class="col-xs-12 col-sm-6">
+<div class="form-group">
+<label class="control-label" for="amount_letter">Исходная ширина:</label>
+<input type="number" id="source_width" class="form-control" name="source_width" min="1" value="">
+</div>
+</div>
+<div class="col-xs-12 col-sm-6">
+<div class="form-group">
+<label class="control-label" for="amount">Исходная высота:</label>
+<input type="number" id="source_height" class="form-control" name="source_height" min="1" value="">
+</div>
+</div>
+<div class="col-xs-12 col-sm-6">
+<div class="form-group">
+<label class="control-label" for="alphabet">Желаемая ширина:</label>
+<input type="number" id="need_width" class="form-control" name="need_width" value="">
+</div>
+</div>
+<div class="col-xs-12 col-sm-6">
+<div class="form-group">
+<label class="control-label" for="alphabet">Желаемая высота:</label>
+<input type="number" id="need_height" class="form-control" name="need_height" value="">
+</div>
+</div>
+<div class="clearfix"></div><hr>
+<div class="lead">
+<div class="col-sm-4">
+<p><strong>Соотношение сторон</strong></p>
+<p><strong class="final_aspect_ratio">1 : 1</strong></p>
+</div>
+<div class="col-sm-4">
+<p><strong>Размер</strong></p>
+<p><strong class="final_dimensions">1 × 1</strong></p>
+</div>
+<div class="col-sm-4">
+<p><strong>Кнопки</strong></p>
+</div>
+</div>
+<hr>
+<div class="form-group">
+<button type="button" id="calc" class="btn btn-wt">Рассчитать</button>
+<button type="button" id="clearBtn" class="btn btn-wt-default">Очистить</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/wtoolkits.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script>
+    $("#clearBtn").on("click", function(e) {
+        $("#source_width").val("");
+        $("#source_height").val("");
+        $("#need_width").val("");
+        $("#need_height").val("");
+
+        $(".screen_mode").text("");
+        $(".final_aspect_ratio").text("1 : 1");
+        $(".final_dimensions").text("1 × 1");
+    });
+
+    $("#need_width").bind("change paste keyup", function() {
+       $("#need_height").val("");
+    });
+    $("#need_height").bind("change paste keyup", function() {
+       $("#need_width").val("");
+    });
+
+    function calс_ratio(){
+        if($("#need_width").val().replace(/\s+/g, "").length){
+            var source_width = $("#source_width").val()*1;
+            var source_height = $("#source_height").val()*1;
+            var need_width = $("#need_width").val()*1;
+            var new_height = Math.round(source_height/(source_width/need_width));
+            $("#need_height").val(new_height);
+        }else if($("#need_height").val().replace(/\s+/g, "").length){
+            var source_width = $("#source_width").val()*1;
+            var source_height = $("#source_height").val()*1;
+            var need_height = $("#need_height").val()*1;
+            var new_width = Math.round(source_width/(source_height/need_height));
+            $("#need_width").val(new_width);
+        }
+    }
+
+    // Calculate the Aspect Ratios of given values
+    function get_aspectRatio(){
+
+        var w = $("#need_width").val()*1;
+        var h = $("#need_height").val()*1;
+
+        if(h == w){
+            aspectRatio = "1 : 1";
+            mode = "square"
+        }else{
+            var mode = null;
+            var dividend, divisor;
+            if(h>w){
+                dividend  = h;
+                divisor   = w;
+                mode      = "portrait";
+            } else {
+                dividend   = w;
+                divisor    = h;
+                mode       = "landscape";
+            }
+
+            var gcd = -1;
+            while(gcd == -1){
+                remainder = dividend%divisor;
+                if(remainder == 0){
+                    gcd = divisor;
+                }else{
+                    dividend  = divisor;
+                    divisor   = remainder;
+                }
+            }
+
+            var hr         = w/gcd;
+            var vr         = h/gcd;
+            aspectRatio    = (hr + " : " + vr);
+
+        }
+
+        $(".screen_mode").text(mode);
+        $(".final_aspect_ratio").text( aspectRatio );
+        $(".final_dimensions").text(w + " × " + h);
+    }
+
+    function validate_inputs(){
+        $(".error").remove();
+        $("#inputPanel").find(".has-error").removeClass("has-error");
+        var isError = 0;
+
+        if($("#source_width").val()==""){
+            isError = 1;
+            $("#source_width").focus().parents("div.form-group").addClass("has-error");
+        }
+        if($("#source_height").val()==""){
+            isError = 1;
+            $("#source_height").focus().parents("div.form-group").addClass("has-error");
+        }
+
+        if($("#need_width").val()=="" && $("#need_height").val()==""){
+            isError = 1;
+            $("#need_width").focus().parents("div.form-group").addClass("has-error");
+        }
+
+        if(isError==0) return true;
+        else return false;
+    }
+
+    $("#calc").on("click", function(e) {
+        var check = validate_inputs();
+        if(check){
+            calс_ratio();
+            get_aspectRatio();
+        }
+    });
+
+    $(".input-number").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, donot do anything
+                 return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+</body>
+</html>
